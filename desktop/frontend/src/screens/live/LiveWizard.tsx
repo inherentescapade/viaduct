@@ -40,6 +40,7 @@ function toRemoteJob(req: DeleteRequest): RemoteJobRequest {
     maxId: req.maxId,
     minId: req.minId,
     verify: true,
+    includePinned: req.includePinned,
   };
 }
 
@@ -105,6 +106,7 @@ export function LiveWizard({
   const [after, setAfter] = useState("");
   const [maxId, setMaxId] = useState("");
   const [minId, setMinId] = useState("");
+  const [includePinned, setIncludePinned] = useState(false);
 
   // review
   const [previewCount, setPreviewCount] = useState<number | null>(null);
@@ -185,6 +187,7 @@ export function LiveWizard({
     after: after.trim(),
     maxId: maxId.trim(),
     minId: minId.trim(),
+    includePinned,
   });
 
   async function loadChannels(guildId: string) {
@@ -246,6 +249,7 @@ export function LiveWizard({
           after: "",
           maxId: "",
           minId: "",
+          includePinned: false,
         }));
       } catch {
         setSample([]);
@@ -579,6 +583,18 @@ export function LiveWizard({
               </label>
             </div>
           </details>
+          <label className="mt-4 flex items-start gap-2 text-sm text-dim">
+            <input
+              type="checkbox"
+              className="mt-0.5"
+              checked={includePinned}
+              onChange={(e) => setIncludePinned(e.target.checked)}
+            />
+            <span>
+              Also delete pinned messages
+              <span className="block text-xs text-dim/80">Pinned messages are kept by default.</span>
+            </span>
+          </label>
           <div className="mt-5 flex items-center justify-between">
             <Button variant="ghost" onClick={() => setStep("scope")}>
               ← Back
@@ -673,6 +689,7 @@ export function LiveWizard({
             onBack={() => setStep("review")}
             onConfirm={startDelete}
             remoteName={dispatchMode ? (remote.actingAs ?? "your server") : null}
+            pinsKept={!includePinned}
           />
         </Card>
       )}

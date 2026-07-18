@@ -323,6 +323,7 @@ export namespace main {
 	    after: string;
 	    maxId: string;
 	    minId: string;
+	    includePinned: boolean;
 	
 	    static createFrom(source: any = {}) {
 	        return new DeleteRequest(source);
@@ -337,6 +338,7 @@ export namespace main {
 	        this.after = source["after"];
 	        this.maxId = source["maxId"];
 	        this.minId = source["minId"];
+	        this.includePinned = source["includePinned"];
 	    }
 	}
 	export class ExportSummaryDTO {
@@ -591,6 +593,7 @@ export namespace main {
 	    maxAgeAmount: number;
 	    maxAgeUnit: string;
 	    intervalHrs: number;
+	    includePinned: boolean;
 	    lastRun: string;
 	    nextRun: string;
 	    lastDeleted: number;
@@ -613,6 +616,7 @@ export namespace main {
 	        this.maxAgeAmount = source["maxAgeAmount"];
 	        this.maxAgeUnit = source["maxAgeUnit"];
 	        this.intervalHrs = source["intervalHrs"];
+	        this.includePinned = source["includePinned"];
 	        this.lastRun = source["lastRun"];
 	        this.nextRun = source["nextRun"];
 	        this.lastDeleted = source["lastDeleted"];
@@ -649,6 +653,7 @@ export namespace main {
 	    maxAgeAmount: number;
 	    maxAgeUnit: string;
 	    intervalHrs: number;
+	    includePinned: boolean;
 	
 	    static createFrom(source: any = {}) {
 	        return new MonitorReq(source);
@@ -665,6 +670,7 @@ export namespace main {
 	        this.maxAgeAmount = source["maxAgeAmount"];
 	        this.maxAgeUnit = source["maxAgeUnit"];
 	        this.intervalHrs = source["intervalHrs"];
+	        this.includePinned = source["includePinned"];
 	    }
 	}
 	export class PingDTO {
@@ -780,6 +786,7 @@ export namespace main {
 	    maxId: string;
 	    minId: string;
 	    verify: boolean;
+	    includePinned: boolean;
 	
 	    static createFrom(source: any = {}) {
 	        return new RemoteJobRequest(source);
@@ -797,6 +804,7 @@ export namespace main {
 	        this.maxId = source["maxId"];
 	        this.minId = source["minId"];
 	        this.verify = source["verify"];
+	        this.includePinned = source["includePinned"];
 	    }
 	}
 	export class TokenStateDTO {

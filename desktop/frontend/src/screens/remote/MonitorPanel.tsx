@@ -117,6 +117,7 @@ export function MonitorPanel({ mapi, self, allowNew = true }: Props) {
         maxAgeAmount: m.maxAgeAmount,
         maxAgeUnit: m.maxAgeUnit,
         intervalHrs: m.intervalHrs,
+        includePinned: m.includePinned,
       });
     } catch (e) {
       setActionError(friendlyError(e));

@@ -28,19 +28,22 @@ type RemoteJobRequest struct {
 	MaxID    string   `json:"maxId"`
 	MinID    string   `json:"minId"`
 	Verify   bool     `json:"verify"`
+	// IncludePinned deletes pinned messages too; false (the default) keeps them.
+	IncludePinned bool `json:"includePinned"`
 }
 
 func (r RemoteJobRequest) toSpec() server.DeleteSpec {
 	return server.DeleteSpec{
-		Guild:    r.Guild,
-		Channels: r.Channels,
-		Exclude:  r.Exclude,
-		User:     r.User,
-		Before:   r.Before,
-		After:    r.After,
-		MaxID:    r.MaxID,
-		MinID:    r.MinID,
-		Verify:   r.Verify,
+		Guild:         r.Guild,
+		Channels:      r.Channels,
+		Exclude:       r.Exclude,
+		User:          r.User,
+		Before:        r.Before,
+		After:         r.After,
+		MaxID:         r.MaxID,
+		MinID:         r.MinID,
+		Verify:        r.Verify,
+		IncludePinned: r.IncludePinned,
 	}
 }
 
@@ -68,6 +71,8 @@ type MonitorReq struct {
 	MaxAgeAmount int      `json:"maxAgeAmount"`
 	MaxAgeUnit   string   `json:"maxAgeUnit"`
 	IntervalHrs  int      `json:"intervalHrs"`
+	// IncludePinned deletes pinned messages too; false (the default) keeps them.
+	IncludePinned bool `json:"includePinned"`
 }
 
 func (r MonitorReq) toPolicy() server.MonitorPolicy {
@@ -76,15 +81,16 @@ func (r MonitorReq) toPolicy() server.MonitorPolicy {
 		mode = server.ModeExclude
 	}
 	return server.MonitorPolicy{
-		ID:           r.ID,
-		Name:         r.Name,
-		Enabled:      r.Enabled,
-		Scope:        r.Scope,
-		Mode:         mode,
-		Channels:     r.Channels,
-		MaxAgeAmount: r.MaxAgeAmount,
-		MaxAgeUnit:   server.MonitorAgeUnit(r.MaxAgeUnit),
-		IntervalHrs:  r.IntervalHrs,
+		ID:            r.ID,
+		Name:          r.Name,
+		Enabled:       r.Enabled,
+		Scope:         r.Scope,
+		Mode:          mode,
+		Channels:      r.Channels,
+		MaxAgeAmount:  r.MaxAgeAmount,
+		MaxAgeUnit:    server.MonitorAgeUnit(r.MaxAgeUnit),
+		IntervalHrs:   r.IntervalHrs,
+		IncludePinned: r.IncludePinned,
 	}
 }
 
@@ -159,21 +165,22 @@ type ExportProgressDTO struct {
 }
 
 type MonitorDTO struct {
-	ID           string           `json:"id"`
-	Name         string           `json:"name"`
-	Enabled      bool             `json:"enabled"`
-	Scope        string           `json:"scope"`
-	Mode         string           `json:"mode"`
-	Channels     []string         `json:"channels"`
-	MaxAgeAmount int              `json:"maxAgeAmount"`
-	MaxAgeUnit   string           `json:"maxAgeUnit"`
-	IntervalHrs  int              `json:"intervalHrs"`
-	LastRun      string           `json:"lastRun"`
-	NextRun      string           `json:"nextRun"`
-	LastDeleted  int              `json:"lastDeleted"`
-	Total        int              `json:"total"`
-	Running      bool             `json:"running"`
-	Recent       []FeedMessageDTO `json:"recent"`
+	ID            string           `json:"id"`
+	Name          string           `json:"name"`
+	Enabled       bool             `json:"enabled"`
+	Scope         string           `json:"scope"`
+	Mode          string           `json:"mode"`
+	Channels      []string         `json:"channels"`
+	MaxAgeAmount  int              `json:"maxAgeAmount"`
+	MaxAgeUnit    string           `json:"maxAgeUnit"`
+	IntervalHrs   int              `json:"intervalHrs"`
+	IncludePinned bool             `json:"includePinned"`
+	LastRun       string           `json:"lastRun"`
+	NextRun       string           `json:"nextRun"`
+	LastDeleted   int              `json:"lastDeleted"`
+	Total         int              `json:"total"`
+	Running       bool             `json:"running"`
+	Recent        []FeedMessageDTO `json:"recent"`
 }
 
 // ---- Converters ----
@@ -251,20 +258,21 @@ func fmtTime(t time.Time) string {
 
 func toMonitorDTO(m server.MonitorPolicy) MonitorDTO {
 	return MonitorDTO{
-		ID:           m.ID,
-		Name:         m.Name,
-		Enabled:      m.Enabled,
-		Scope:        m.Scope,
-		Mode:         string(m.Mode),
-		Channels:     m.Channels,
-		MaxAgeAmount: m.MaxAgeAmount,
-		MaxAgeUnit:   string(m.MaxAgeUnit),
-		IntervalHrs:  m.IntervalHrs,
-		LastRun:      fmtTime(m.LastRun),
-		NextRun:      fmtTime(m.NextRun),
-		LastDeleted:  m.LastDeleted,
-		Total:        m.Total,
-		Running:      m.Running,
-		Recent:       toFeed(m.Recent),
+		ID:            m.ID,
+		Name:          m.Name,
+		Enabled:       m.Enabled,
+		Scope:         m.Scope,
+		Mode:          string(m.Mode),
+		Channels:      m.Channels,
+		MaxAgeAmount:  m.MaxAgeAmount,
+		MaxAgeUnit:    string(m.MaxAgeUnit),
+		IntervalHrs:   m.IntervalHrs,
+		IncludePinned: m.IncludePinned,
+		LastRun:       fmtTime(m.LastRun),
+		NextRun:       fmtTime(m.NextRun),
+		LastDeleted:   m.LastDeleted,
+		Total:         m.Total,
+		Running:       m.Running,
+		Recent:        toFeed(m.Recent),
 	}
 }

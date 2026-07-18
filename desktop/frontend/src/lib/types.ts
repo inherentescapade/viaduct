@@ -197,6 +197,7 @@ export interface DeleteRequest {
   after: string;
   maxId: string;
   minId: string;
+  includePinned: boolean; // delete pinned messages too; false keeps them
 }
 
 export interface ImportRequest {
@@ -295,6 +296,7 @@ export interface MonitorDTO {
   maxAgeAmount: number;
   maxAgeUnit: string;
   intervalHrs: number;
+  includePinned: boolean;
   lastRun: string;
   nextRun: string;
   lastDeleted: number;
@@ -314,6 +316,7 @@ export interface RemoteJobRequest {
   maxId: string;
   minId: string;
   verify: boolean;
+  includePinned?: boolean; // delete pinned messages too; false keeps them
 }
 
 export interface MonitorReq {
@@ -326,4 +329,5 @@ export interface MonitorReq {
   maxAgeAmount: number;
   maxAgeUnit: string; // "minutes" | "hours" | "days" | "weeks"
   intervalHrs: number;
+  includePinned: boolean; // delete pinned messages too; false keeps them
 }

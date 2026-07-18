@@ -11,11 +11,14 @@ interface Props {
   // When set, the action is dispatched to a remote server rather than run
   // locally, so the copy and button label adapt accordingly.
   remoteName?: string | null;
+  // Whether pinned messages are preserved by this run. Spelled out here so the
+  // final confirmation makes the pin behavior explicit either way.
+  pinsKept?: boolean;
 }
 
 // A final confirmation for an irreversible action: a clear warning and a single
 // delete/dispatch button.
-export function ConfirmGate({ count, scopeLabel, onConfirm, onBack, remoteName }: Props) {
+export function ConfirmGate({ count, scopeLabel, onConfirm, onBack, remoteName, pinsKept }: Props) {
   const isRemote = !!remoteName;
   // "5 messages" once known, otherwise a count-agnostic phrase.
   const noun = count === null ? "messages" : `${count.toLocaleString()} message${count === 1 ? "" : "s"}`;
@@ -33,6 +36,11 @@ export function ConfirmGate({ count, scopeLabel, onConfirm, onBack, remoteName }
             </div>
             <p className="mt-1 text-sm leading-relaxed text-danger-strong/80">
               From {scopeLabel}. Deleted messages cannot be recovered.
+              {pinsKept === undefined
+                ? ""
+                : pinsKept
+                  ? " Pinned messages are kept."
+                  : " Pinned messages are deleted too."}
               {isRemote
                 ? ` This runs on your server (${remoteName}) and keeps going even if you close this app.`
                 : " A log of everything removed is saved locally."}

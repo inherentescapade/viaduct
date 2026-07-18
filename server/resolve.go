@@ -160,6 +160,7 @@ func (r *resolver) buildDeleteJob(kind JobKind, spec DeleteSpec) (engine.DeleteJ
 	}
 	job.MaxID = spec.MaxID
 	job.MinID = spec.MinID
+	job.IncludePinned = spec.IncludePinned
 	return job, label, nil
 }
 
@@ -255,11 +256,12 @@ func (r *resolver) buildMonitorJob(p MonitorPolicy) (engine.DeleteJob, error) {
 	}
 
 	job := engine.DeleteJob{
-		GuildID:   guild.Id,
-		GuildName: guild.Name,
-		Channels:  chans,
-		UserID:    r.user.Id,
-		Before:    time.Now().Add(-p.MaxAge()),
+		GuildID:       guild.Id,
+		GuildName:     guild.Name,
+		Channels:      chans,
+		UserID:        r.user.Id,
+		Before:        time.Now().Add(-p.MaxAge()),
+		IncludePinned: p.IncludePinned,
 	}
 	// A whole-guild include-everything monitor can search guild-wide.
 	if guild.Id != "@me" && p.Mode == ModeExclude && len(p.Channels) == 0 {

@@ -141,6 +141,8 @@ type DeleteSpec struct {
 	MinID string `json:"min_id,omitempty"`
 	// Verify runs follow-up passes until the remaining count reaches zero.
 	Verify bool `json:"verify,omitempty"`
+	// IncludePinned deletes pinned messages too; false (the default) keeps them.
+	IncludePinned bool `json:"include_pinned,omitempty"`
 }
 
 // PreviewRequest asks how many messages a spec would affect, without deleting.
@@ -387,9 +389,11 @@ type MonitorPolicy struct {
 	MaxAgeAmount int            `json:"max_age_amount"`
 	MaxAgeUnit   MonitorAgeUnit `json:"max_age_unit"`
 	IntervalHrs  int            `json:"interval_hours"` // how often to run (default 6)
-	LastRun      time.Time      `json:"last_run,omitempty"`
-	LastDeleted  int            `json:"last_deleted,omitempty"`
-	NextRun      time.Time      `json:"next_run,omitempty"`
+	// IncludePinned deletes pinned messages too; false (the default) keeps them.
+	IncludePinned bool      `json:"include_pinned,omitempty"`
+	LastRun       time.Time `json:"last_run,omitempty"`
+	LastDeleted   int       `json:"last_deleted,omitempty"`
+	NextRun       time.Time `json:"next_run,omitempty"`
 	// Running is true while a scheduled run is in progress. While running,
 	// LastDeleted and Total update live (deleted-so-far / matched total) for a
 	// progress indicator, and Recent holds the run's most-recent deletions.

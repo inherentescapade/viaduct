@@ -62,6 +62,7 @@ export function NewMonitorForm({ mapi, onSaved, onCancel, initial }: Props) {
   const [maxAgeAmount, setMaxAgeAmount] = useState(initial?.maxAgeAmount ?? 7);
   const [maxAgeUnit, setMaxAgeUnit] = useState<string>(initial?.maxAgeUnit ?? "days");
   const [intervalHrs, setIntervalHrs] = useState(initial?.intervalHrs ?? 6);
+  const [includePinned, setIncludePinned] = useState(initial?.includePinned ?? false);
   const [enabled, setEnabled] = useState(initial?.enabled ?? true);
 
   const [preview, setPreview] = useState<PreviewDTO | null>(null);
@@ -185,6 +186,7 @@ export function NewMonitorForm({ mapi, onSaved, onCancel, initial }: Props) {
       maxAgeAmount,
       maxAgeUnit,
       intervalHrs,
+      includePinned,
     };
   }
 
@@ -374,7 +376,7 @@ export function NewMonitorForm({ mapi, onSaved, onCancel, initial }: Props) {
               }}
             />
             <select
-              className={`${inputCls} w-28`}
+              className={`${inputCls} shrink-0 grow-0 basis-28`}
               value={maxAgeUnit}
               onChange={(e) => {
                 setMaxAgeUnit(e.target.value);
@@ -401,6 +403,22 @@ export function NewMonitorForm({ mapi, onSaved, onCancel, initial }: Props) {
         </div>
       </div>
 
+      <label className="flex items-start gap-2 text-sm text-dim">
+        <input
+          type="checkbox"
+          className="mt-0.5"
+          checked={includePinned}
+          onChange={(e) => {
+            setIncludePinned(e.target.checked);
+            invalidate();
+          }}
+        />
+        <span>
+          Also delete pinned messages
+          <span className="block text-xs text-dim/80">Pinned messages are kept by default.</span>
+        </span>
+      </label>
+
       <label className="flex items-center gap-2 text-sm text-dim">
         <input type="checkbox" checked={enabled} onChange={(e) => setEnabled(e.target.checked)} />
         {initial ? "Enabled (runs on the schedule)" : "Enable immediately (start running on the schedule)"}
@@ -409,7 +427,8 @@ export function NewMonitorForm({ mapi, onSaved, onCancel, initial }: Props) {
       {preview && (
         <Banner tone={preview.total > 0 ? "warn" : "info"}>
           Right now this would delete {preview.total.toLocaleString()} message(s) older than {maxAgeAmount}{" "}
-          {maxAgeUnit}.
+          {maxAgeUnit}
+          {includePinned ? ", including pinned messages" : " (pinned messages are kept)"}.
         </Banner>
       )}
 
