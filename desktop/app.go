@@ -787,12 +787,13 @@ func (a *App) buildDeleteJob(req DeleteRequest) (engine.DeleteJob, error) {
 	a.mu.Unlock()
 
 	job := engine.DeleteJob{
-		GuildID:   req.GuildID,
-		GuildName: req.GuildName,
-		UserID:    user.Id,
-		MaxID:     strings.TrimSpace(req.MaxID),
-		MinID:     strings.TrimSpace(req.MinID),
-		PreScan:   preScan,
+		GuildID:       req.GuildID,
+		GuildName:     req.GuildName,
+		UserID:        user.Id,
+		MaxID:         strings.TrimSpace(req.MaxID),
+		MinID:         strings.TrimSpace(req.MinID),
+		PreScan:       preScan,
+		IncludePinned: req.IncludePinned,
 	}
 
 	if s := strings.TrimSpace(req.Before); s != "" {

@@ -16,15 +16,16 @@ import (
 )
 
 var (
-	deleteChannels string
-	deleteExclude  string
-	deleteBefore   string
-	deleteAfter    string
-	deleteDryRun   bool
-	deleteYes      bool
-	deleteMaxID    string
-	deleteMinID    string
-	deletePreScan  bool
+	deleteChannels      string
+	deleteExclude       string
+	deleteBefore        string
+	deleteAfter         string
+	deleteDryRun        bool
+	deleteYes           bool
+	deleteMaxID         string
+	deleteMinID         string
+	deletePreScan       bool
+	deleteIncludePinned bool
 )
 
 var deleteCmd = &cobra.Command{
@@ -71,13 +72,14 @@ Examples:
 		}
 
 		job := engine.DeleteJob{
-			GuildID:   guild.Id,
-			GuildName: guild.Name,
-			Channels:  channels,
-			UserID:    user.Id,
-			MaxID:     deleteMaxID,
-			MinID:     deleteMinID,
-			PreScan:   deletePreScan || config.Prefs.PreScan,
+			GuildID:       guild.Id,
+			GuildName:     guild.Name,
+			Channels:      channels,
+			UserID:        user.Id,
+			MaxID:         deleteMaxID,
+			MinID:         deleteMinID,
+			PreScan:       deletePreScan || config.Prefs.PreScan,
+			IncludePinned: deleteIncludePinned,
 		}
 
 		if deleteBefore != "" {
@@ -147,7 +149,7 @@ Examples:
 				if p.Error != nil {
 					fmt.Printf("\r\033[K  Error: %v\n", p.Error)
 				} else if p.Ignored > 0 {
-					fmt.Printf("\r\033[K  Done — %d deleted, %d failed, %d ignored (undeletable system messages)\n", p.Deleted, p.Failed, p.Ignored)
+					fmt.Printf("\r\033[K  Done — %d deleted, %d failed, %d ignored (kept pinned or undeletable system messages)\n", p.Deleted, p.Failed, p.Ignored)
 				} else {
 					fmt.Printf("\r\033[K  Done — %d deleted, %d failed\n", p.Deleted, p.Failed)
 				}
@@ -304,5 +306,6 @@ func init() {
 	deleteCmd.Flags().StringVar(&deleteMaxID, "maxid", "", "Maximum message snowflake ID")
 	deleteCmd.Flags().StringVar(&deleteMinID, "minid", "", "Minimum message snowflake ID")
 	deleteCmd.Flags().BoolVar(&deletePreScan, "prescan", false, "Enumerate the full message list first for an exact total/ETA before deleting")
+	deleteCmd.Flags().BoolVar(&deleteIncludePinned, "include-pinned", false, "Also delete pinned messages (kept by default)")
 	rootCmd.AddCommand(deleteCmd)
 }

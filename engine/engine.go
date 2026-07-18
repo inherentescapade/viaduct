@@ -31,6 +31,10 @@ type DeleteJob struct {
 	// PreScan enumerates every matching message up front (exact total/ETA) before
 	// deleting, instead of streaming deletes as it scans.
 	PreScan bool
+	// IncludePinned deletes pinned messages too. It defaults to false so pinned
+	// messages are kept — they're usually the ones worth preserving, and a bulk
+	// delete shouldn't wipe them out unless the user explicitly opts in.
+	IncludePinned bool
 }
 
 // IsDM reports whether this job targets direct messages rather than a guild.
@@ -75,6 +79,8 @@ type Engine struct {
 	lastIdxNotice  time.Time
 	lastSkipNotice time.Time
 	skipSeen       int
+	lastKeepNotice time.Time
+	keepSeen       int
 	channelNames   map[string]string // channel ID -> display name, for notices
 
 	// indexWait is how long to wait between search retries while Discord's
@@ -212,6 +218,31 @@ func (e *Engine) skipNotice(channelID string) {
 	}
 }
 
+// keepNotice tells the user we're keeping pinned messages rather than deleting
+// them (the default), so a channel full of pins doesn't look like a stalled run
+// producing no deletes. Like skipNotice it keeps a running count and is throttled
+// globally so a long scan reports steady progress without flooding the feed.
+func (e *Engine) keepNotice(channelID string) {
+	if e.OnNotice == nil {
+		return
+	}
+	e.noticeMu.Lock()
+	e.keepSeen++
+	n := e.keepSeen
+	if time.Since(e.lastKeepNotice) < 2*time.Second {
+		e.noticeMu.Unlock()
+		return
+	}
+	e.lastKeepNotice = time.Now()
+	e.noticeMu.Unlock()
+
+	if label := e.chanLabel(channelID); label != "" {
+		e.notice(fmt.Sprintf("Scanning #%s — kept %d pinned message(s) (use --include-pinned to delete them)…", label, n))
+	} else {
+		e.notice(fmt.Sprintf("Scanning — kept %d pinned message(s) (use --include-pinned to delete them)…", n))
+	}
+}
+
 // wireRateNotices makes the client report its per-channel pacing decisions as
 // throttled, human-readable notices (at most one per channel every few seconds).
 func (e *Engine) wireRateNotices(job DeleteJob) {
@@ -227,6 +258,8 @@ func (e *Engine) wireRateNotices(job DeleteJob) {
 	e.lastNotice = make(map[string]time.Time)
 	e.lastSkipNotice = time.Time{}
 	e.skipSeen = 0
+	e.lastKeepNotice = time.Time{}
+	e.keepSeen = 0
 
 	e.Client.OnRateEvent = func(ev discord.RateEvent) {
 		// Throttle: don't report the same channel more than once every 4s.
@@ -574,6 +607,15 @@ func (e *Engine) deleteScope(ctx context.Context, job DeleteJob, channelID strin
 			}
 			oldest = msg.Id
 
+			// Pinned messages are kept unless the user opts in: they're usually the
+			// ones worth preserving, so treat them as non-targets rather than
+			// deleting them in a bulk sweep.
+			if msg.Pinned && !job.IncludePinned {
+				e.applyIgnored(progress, mu)
+				e.keepNotice(channelID)
+				continue
+			}
+
 			// System messages (call notices, group add/remove, pins, ...) can't be
 			// deleted; don't waste a DELETE request on them, and don't let them
 			// count toward the total or the failures.
@@ -800,6 +842,11 @@ func (e *Engine) collectScope(ctx context.Context, job DeleteJob, channelID stri
 				continue
 			}
 			oldest = msg.Id
+			if msg.Pinned && !job.IncludePinned {
+				ignored++
+				e.keepNotice(channelID)
+				continue
+			}
 			if isSystemMessage(msg) {
 				ignored++
 				e.skipNotice(channelID)
@@ -927,7 +974,11 @@ func (e *Engine) Enumerate(ctx context.Context, job DeleteJob) (int, error) {
 					continue
 				}
 				// A dry run should list what would actually be deleted, so leave out
-				// system messages the real run would skip.
+				// system messages the real run would skip, and pinned messages it
+				// keeps by default.
+				if msg.Pinned && !job.IncludePinned {
+					continue
+				}
 				if isSystemMessage(msg) {
 					continue
 				}

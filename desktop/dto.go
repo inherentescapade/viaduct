@@ -31,6 +31,8 @@ type DeleteRequest struct {
 	After      string   `json:"after"`
 	MaxID      string   `json:"maxId"`
 	MinID      string   `json:"minId"`
+	// IncludePinned deletes pinned messages too; false (the default) keeps them.
+	IncludePinned bool `json:"includePinned"`
 }
 
 // ImportRequest drives CountImport and StartImport. The selector semantics
