@@ -1,0 +1,44 @@
+# ---- Compiled binaries (CLI/TUI) ----
+# The single `viaduct` binary from `go build -o viaduct .` and release artifacts.
+/viaduct
+/viaduct.exe
+/viaduct-*
+/dist/
+
+# ---- Go build / test artifacts ----
+*.test
+*.out
+*.prof
+coverage.*
+
+# ---- Wails desktop build output ----
+# Compiled desktop binaries and installers are generated, never committed.
+/desktop/build/bin/
+# The WebView2 bootstrapper is downloaded at build time.
+/desktop/build/windows/installer/tmp/
+
+# ---- Frontend (Node) ----
+# Installed dependencies (~150 MB) — never commit.
+/desktop/frontend/node_modules/
+# Vite build output. Ignore its contents but keep the directory itself so the
+# `//go:embed all:frontend/dist` in desktop/main.go still compiles on a fresh
+# clone (real builds regenerate it via `npm run build` / `wails build`).
+/desktop/frontend/dist/*
+!/desktop/frontend/dist/.gitkeep
+
+# ---- Local config / secrets ----
+# viaduct stores your Discord token locally — never let it into git.
+*.local
+.env
+.env.*
+
+# ---- OS junk ----
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---- Editors / IDEs ----
+/.idea/
+/.vscode/
+*.swp
+*~
